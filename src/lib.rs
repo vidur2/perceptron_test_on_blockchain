@@ -65,7 +65,6 @@ impl InputMatrixWeight {
             bias: 0
         }
     }
-    #[private]
     pub fn predict(&self, height: &u32, weight: &u32, legs: &u32, is_alive: &u8) -> u8{
         let casted_height = *height as i32;
         let casted_weight = *weight as i32;
