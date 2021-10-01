@@ -33,6 +33,11 @@ mod tests {
             is_alive_weight: rng.gen_range(-10i32..11i32),
             bias: 0
         };
+        let outputs = [1u8, 1u8, 1u8, 1u8, 1u8, 0u8, 0u8, 0u8, 0u8, 0u8];
+        let inputs = [(46u32, 150u32, 4u32, 1u8), (50u32, 100u32, 4u32, 1u8), (52u32, 200u32, 4u32, 1u8), (55u32, 250u32, 4u32, 1u8), (46u32, 150u32, 4u32, 1u8), (10u32, 350u32, 2u32, 0u8), (100u32, 10u32, 0u32, 0u8), (5u32, 800u32, 2u32, 0u8), (300u32, 50u32, 2u32, 0u8), (6u32, 6u32, 1u32, 0u8)];
+        contract.train(inputs, outputs);
+        let prediction = contract.predict(&46u32, &150u32, &4u32, &1u8);
+        assert_eq!(1, prediction);
     }
 }
 
@@ -86,8 +91,8 @@ impl InputMatrixWeight {
         let offset = offset2 as i32;
         self.height_weight = &self.height_weight + &offset;
         self.weight_weight = &self.weight_weight + &offset;
-        self.legs_weight = &self.legs_weight + &offset;
-        self.is_alive_weight = &self.is_alive_weight + &offset;
+        self.legs_weight = &self.legs_weight + &offset * 10;
+        self.is_alive_weight = &self.is_alive_weight + &offset * 10;
         self.bias = &self.bias + &offset;
     }
 }
