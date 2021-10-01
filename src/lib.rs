@@ -34,10 +34,17 @@ mod tests {
             bias: 0
         };
         let outputs = [1u8, 1u8, 1u8, 1u8, 1u8, 0u8, 0u8, 0u8, 0u8, 0u8];
-        let inputs = [(46u32, 150u32, 4u32, 1u8), (50u32, 100u32, 4u32, 1u8), (52u32, 200u32, 4u32, 1u8), (55u32, 250u32, 4u32, 1u8), (46u32, 150u32, 4u32, 1u8), (10u32, 350u32, 2u32, 0u8), (100u32, 10u32, 0u32, 0u8), (5u32, 800u32, 2u32, 0u8), (300u32, 50u32, 2u32, 0u8), (6u32, 6u32, 1u32, 0u8)];
-        contract.train(inputs, outputs);
-        let prediction = contract.predict(&52u32, &200u32, &3u32, &1u8);
-        assert_eq!(1, prediction);
+        let inputs = [(46u32, 150u32, 4u32, 1u8), (50u32, 180u32, 4u32, 1u8), (52u32, 200u32, 4u32, 1u8), (55u32, 250u32, 4u32, 1u8), (46u32, 150u32, 4u32, 1u8), (1000u32, 3500u32, 0u32, 0u8), (400u32, 4000u32, 0u32, 0u8), (500u32, 8000u32, 0u32, 0u8), (300u32, 5000u32, 0u32, 0u8), (600u32, 6000u32, 0u32, 0u8)];
+        let mut counter = 0u64;
+        loop{
+            contract.train(inputs, outputs);
+            counter = counter + 1;
+            if counter == 1000000u64{break};
+        };
+        let prediction = contract.predict(&46u32, &150u32, &4u32, &1u8);
+        let prediction2 = contract.predict(&46u32, &150u32, &4u32, &0u8);
+        assert_eq!(1, prediction, "predicted value of {}", prediction);
+        assert_eq!(0, prediction2, "predicted2 value of {}", prediction2);
     }
 }
 
@@ -77,7 +84,7 @@ impl InputMatrixWeight {
         for i in 0..9{
             let prediction = self.predict(&inputs[i].0, &inputs[i].1, &inputs[i].2, &inputs[i].3);
             let offset: i8 = outputs[i] as i8 - prediction as i8;
-            self.adjust(offset);
+            self.adjust(offset, inputs[i].0 as i32, inputs[i].1 as i32, inputs[i].2 as i32, inputs[i].3 as i32);
         }
     }
     fn step_function(&self, sum: i32) -> u8{
@@ -86,12 +93,12 @@ impl InputMatrixWeight {
         else if sum < 0{return_value = 0};
         return_value
     }
-    fn adjust(&mut self, offset2: i8){
+    fn adjust(&mut self, offset2: i8, input1: i32, input2: i32, input3: i32, input4: i32){
         let offset = offset2 as i32;
-        self.height_weight = &self.height_weight + &offset;
-        self.weight_weight = &self.weight_weight + &offset;
-        self.legs_weight = &self.legs_weight + &offset * 10;
-        self.is_alive_weight = &self.is_alive_weight + &offset * 10;
+        self.height_weight = &self.height_weight + &offset * input1;
+        self.weight_weight = &self.weight_weight + &offset * input2;
+        self.legs_weight = &self.legs_weight + &offset * input3;
+        self.is_alive_weight = &self.is_alive_weight + &offset * input4;
         self.bias = &self.bias + &offset;
     }
 }
