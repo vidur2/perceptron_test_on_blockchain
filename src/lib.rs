@@ -5,7 +5,6 @@ Smart Contract
 
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::{near_bindgen, require, env};
-use rand::Rng;
 
 #[cfg(all(test, not(target_arch = "wasm32")))]
 mod tests {
@@ -13,7 +12,6 @@ mod tests {
     use near_sdk::test_utils::VMContextBuilder;
     use near_sdk::{testing_env, VMContext};
     use std::convert::TryInto;
-    use rand::Rng;
     fn get_context(is_view: bool) -> VMContext {
         VMContextBuilder::new()
             .signer_account_id("vidur.testnet".to_string().try_into().unwrap())
@@ -27,10 +25,10 @@ mod tests {
         testing_env!(context);
         let mut rng = rand::thread_rng();
         let mut contract = InputMatrixWeight {
-            height_weight: rng.gen_range(-10i32..11i32),
-            weight_weight: rng.gen_range(-10i32..11i32),
-            legs_weight: rng.gen_range(-10i32..11i32),
-            is_alive_weight: rng.gen_range(-10i32..11i32),
+            height_weight: -10,
+            weight_weight: -1,
+            legs_weight: 4,
+            is_alive_weight: 1,
             bias: 0
         };
         let outputs = [1u8, 1u8, 1u8, 1u8, 1u8, 0u8, 0u8, 0u8, 0u8, 0u8];
@@ -41,9 +39,9 @@ mod tests {
             counter = counter + 1;
             if counter == 1000000u64{break};
         };
-        let prediction = contract.predict(&46u32, &150u32, &4u32, &1u8);
-        let prediction2 = contract.predict(&46u32, &150u32, &4u32, &0u8);
-        assert_eq!(1, prediction, "predicted value of {}", prediction);
+        //let prediction = contract.predict(&46u32, &150u32, &4u32, &1u8);
+        let prediction2 = contract.predict(&46u32, &150u32, &2u32, &1u8);
+        //assert_eq!(1, prediction, "predicted value of {}", prediction);
         assert_eq!(0, prediction2, "predicted2 value of {}", prediction2);
     }
 }
@@ -62,13 +60,12 @@ pub struct InputMatrixWeight {
 impl InputMatrixWeight {
     #[init]
     pub fn new() -> Self{
-        let mut rng = rand::thread_rng();
         require!(!env::state_exists(), "Already initialized");
         Self {
-            height_weight: rng.gen_range(-10i32..11i32),
-            weight_weight: rng.gen_range(-10i32..11i32),
-            legs_weight: rng.gen_range(-10i32..11i32),
-            is_alive_weight: rng.gen_range(-10i32..11i32),
+            height_weight: -10i32,
+            weight_weight: -1i32,
+            legs_weight: 4i32,
+            is_alive_weight: 1i32,
             bias: 0
         }
     }
@@ -95,10 +92,15 @@ impl InputMatrixWeight {
     }
     fn adjust(&mut self, offset2: i8, input1: i32, input2: i32, input3: i32, input4: i32){
         let offset = offset2 as i32;
-        self.height_weight = &self.height_weight + &offset * input1;
-        self.weight_weight = &self.weight_weight + &offset * input2;
-        self.legs_weight = &self.legs_weight + &offset * input3;
-        self.is_alive_weight = &self.is_alive_weight + &offset * input4;
+        let mut counter = 0;
+        loop {
+            self.height_weight = &self.height_weight + &offset * input1;
+            self.weight_weight = &self.weight_weight + &offset * input2;
+            self.legs_weight = &self.legs_weight + &offset * input3 * 1000000;
+            self.is_alive_weight = &self.is_alive_weight + &offset * input4 * 1000000;
+            counter = counter + 1;
+            if counter == 10 {break};
+        }
         self.bias = &self.bias + &offset;
     }
 }
