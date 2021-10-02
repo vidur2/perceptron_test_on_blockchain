@@ -23,12 +23,11 @@ mod tests {
     fn my_test() {
     let context = get_context(false);
         testing_env!(context);
-        let mut rng = rand::thread_rng();
         let mut contract = InputMatrixWeight {
-            height_weight: -10,
-            weight_weight: -1,
-            legs_weight: 4,
-            is_alive_weight: 1,
+            height_weight: -10i32,
+            weight_weight: -1i32,
+            legs_weight: 4i32 * 100,
+            is_alive_weight: 1i32 * 1000,
             bias: 0
         };
         let outputs = [1u8, 1u8, 1u8, 1u8, 1u8, 0u8, 0u8, 0u8, 0u8, 0u8];
@@ -40,9 +39,9 @@ mod tests {
             if counter == 1000000u64{break};
         };
         //let prediction = contract.predict(&46u32, &150u32, &4u32, &1u8);
-        let prediction2 = contract.predict(&46u32, &150u32, &2u32, &1u8);
+        let prediction2 = contract.predict(&46u32, &150u32, &4u32, &1u8);
         //assert_eq!(1, prediction, "predicted value of {}", prediction);
-        assert_eq!(0, prediction2, "predicted2 value of {}", prediction2);
+        assert_eq!(1, prediction2, "predicted2 value of {}", prediction2);
     }
 }
 
@@ -55,6 +54,7 @@ pub struct InputMatrixWeight {
     legs_weight: i32,
     is_alive_weight: i32,
     bias: i32,
+    training_datapoints: u32,
 }
 #[near_bindgen]
 impl InputMatrixWeight {
@@ -76,6 +76,9 @@ impl InputMatrixWeight {
         let casted_is_alive =  *is_alive as i32;
         let weighted_sum = &self.bias + casted_height * &self.height_weight + casted_weight * &self.weight_weight + casted_legs * &self.legs_weight + casted_is_alive * &self.is_alive_weight;
         self.step_function(weighted_sum)
+    }
+    pub fn set_training_length(&mut self, training_datapoints_amt: u32){
+        self.training_datapoints = training_datapoints_amt
     }
     pub fn train(&mut self, inputs: [(u32, u32, u32, u8); 10], outputs: [u8; 10]){
         for i in 0..9{
