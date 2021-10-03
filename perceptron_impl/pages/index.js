@@ -27,7 +27,7 @@ const config = {
   const prediction = await perceptron.predict({"height": height, "weight": weight, "legs": legs, "is_alive": state});
   console.log("Thing is")
   console.log(await prediction)
-
+  return await prediction
 }
 
 
@@ -51,7 +51,19 @@ export default function Home() {
     }else{
       sheepState = 0;
     }
-    contractUse(height, weight, legs, sheepState)
+    if (weight != null || height == null || legs == null || sheepState == null){
+      const output = document.getElementById('prediction');
+      output.innerHTML = "Please fill in all fields!"
+    }else{
+      contractUse(height, weight, legs, sheepState).then(value => {
+        const output = document.getElementById('prediction');
+        if (value == 1){
+          output.innerHTML = "Perceptron has determined it was a sheep!"
+        }else{
+          output.innerHTML = "Perceptron has determined it wasn't a sheep.<p>Think the prediction was innacurate?</p><p>Train it with your own data <a href='http://localhost:3000/train'>here</a>!</p>"
+        }
+      })
+    }
     
   }
   return (
@@ -64,11 +76,12 @@ export default function Home() {
       <input type= "text" required id='height'></input>
       <p>Enter thing's weight: </p>
       <input type= "text" required id='weight'></input>
-      <p>Enter thing's amt of legs: </p>
+      <p>Enter thing's amount of legs: </p>
       <input type= "text" required id='legs'></input>
       <p>Enter whether thing is alive: </p>
       <input type= "text" required id='state'></input>
       <button onClick={params}>Click to predict </button>
+      <p id="prediction"></p>
     </div>
   )
 }

@@ -1,6 +1,33 @@
 import Head from 'next/head';
 import styles from "../styles/Home.module.css"
 
+// Use of nearAPI
+async function contractUse(inputs, outputs){
+    const { Contract, WalletConnection, keyStores, connect } = require("near-api-js");
+    const methodOptions = {
+      viewMethods: ['predict'],
+      changeMethods: ['train']
+    }
+  
+  const config = {
+    networkId: "testnet",
+    keyStore: new keyStores.BrowserLocalStorageKeyStore(),
+    nodeUrl: "https://rpc.testnet.near.org",
+    walletUrl: "https://wallet.testnet.near.org",
+    helperUrl: "https://helper.testnet.near.org",
+    explorerUrl: "https://explorer.testnet.near.org",
+  };
+    const near = await connect(config);
+    const wallet = new WalletConnection(near);
+    const perceptron = new Contract(
+      wallet.account(),
+      'test2.perceptron.testnet',
+      methodOptions
+    )
+    await perceptron.train({"inputs": inputs, "outputs": outputs});
+  
+  }
+
 export default function train(){
     const form = async event => {
         event.preventDefault();
@@ -12,12 +39,20 @@ export default function train(){
             let infor = e.target.result.toString()
             infor = infor.split("\n")
             let split_row = new Array;
-            let full_split = new Array
-            for(let i = 0; i < infor.length; i++){
+            let inputArray = new Array;
+            let outputArray = new Array;
+            let counter = 0;
+            for(let i = 1; i < infor.length; i++){
                 split_row = infor[i].split(',');
-                full_split.push(split_row)
+                inputArray.push([parseInt(split_row[0]), parseInt(split_row[1]), parseInt(split_row[2]), parseInt(split_row[3])]);
+                outputArray.push(parseInt(split_row[4]))
+                counter++;
+                if(counter == 10){
+                    contractUse(inputArray, outputArray)
+                    inputArray = new Array
+                    counter = 0;
+                }
             }
-            console.log(full_split[1][1])
         }
     }
     return(
