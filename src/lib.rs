@@ -54,7 +54,6 @@ pub struct InputMatrixWeight {
     legs_weight: i32,
     is_alive_weight: i32,
     bias: i32,
-    training_datapoints: u32,
 }
 #[near_bindgen]
 impl InputMatrixWeight {
@@ -76,9 +75,6 @@ impl InputMatrixWeight {
         let casted_is_alive =  *is_alive as i32;
         let weighted_sum = &self.bias + casted_height * &self.height_weight + casted_weight * &self.weight_weight + casted_legs * &self.legs_weight + casted_is_alive * &self.is_alive_weight;
         self.step_function(weighted_sum)
-    }
-    pub fn set_training_length(&mut self, training_datapoints_amt: u32){
-        self.training_datapoints = training_datapoints_amt
     }
     pub fn train(&mut self, inputs: [(u32, u32, u32, u8); 10], outputs: [u8; 10]){
         for i in 0..9{

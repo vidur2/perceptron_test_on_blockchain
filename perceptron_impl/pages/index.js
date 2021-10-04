@@ -51,7 +51,7 @@ export default function Home() {
     }else{
       sheepState = 0;
     }
-    if (weight != null || height == null || legs == null || sheepState == null){
+    if (weight == null || height == null || legs == null || sheepState == null){
       const output = document.getElementById('prediction');
       output.innerHTML = "Please fill in all fields!"
     }else{
@@ -60,7 +60,7 @@ export default function Home() {
         if (value == 1){
           output.innerHTML = "Perceptron has determined it was a sheep!"
         }else{
-          output.innerHTML = "Perceptron has determined it wasn't a sheep.<p>Think the prediction was innacurate?</p><p>Train it with your own data <a href='http://localhost:3000/train'>here</a>!</p>"
+          output.innerHTML = "Perceptron has determined it wasn't a sheep.<p>Think the prediction was innacurate?</p><p>Train it with your own data <a href='https://sheep-deep-learning.app.vtxhub.com/train'>here</a>!</p>"
         }
       })
     }
@@ -72,9 +72,9 @@ export default function Home() {
         <title>Sheep Deep Learning</title>
       </Head>
       <h1>Deep Sheep Learning</h1>
-      <p>Enter thing's height: </p>
+      <p>Enter thing's height (cm): </p>
       <input type= "text" required id='height'></input>
-      <p>Enter thing's weight: </p>
+      <p>Enter thing's weight (kg): </p>
       <input type= "text" required id='weight'></input>
       <p>Enter thing's amount of legs: </p>
       <input type= "text" required id='legs'></input>

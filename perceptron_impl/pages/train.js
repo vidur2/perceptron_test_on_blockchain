@@ -59,6 +59,7 @@ export default function train(){
         <div className={styles.container}>
             <h1>Sheep Deep Learn: Train</h1>
             <p>Upload a csv here:</p>
+            <p>Format the data rows as (ignores 1st row, assumes its a title row): height(cm), weight(kg), leg amount, is_alive(1/0), expected_output(1/0)</p>
             <form onSubmit={form}>
                 <input type="file"  accept="csv" id="fileInfo"/>
                 <button type="submit">Submit file</button>
